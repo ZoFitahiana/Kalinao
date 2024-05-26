@@ -17,6 +17,6 @@ public class IngredientMenu {
     private int quantiteNecessaire ;
     private String type ;
     private  int idUnite ;
-    private LocalDateTime date ;
+    private LocalDateTime dateMovement ;
 }
 

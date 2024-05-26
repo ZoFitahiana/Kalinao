@@ -1,8 +1,8 @@
-package org.restaurant.app.repository;
+package org.restaurant.app.operation;
 
 import java.util.List;
 
-public interface Operation <T>{
+public interface CrudOperation<T>{
    T findById();
    List<T> findAll();
    T save(T toSave);

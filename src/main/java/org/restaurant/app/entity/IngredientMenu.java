@@ -14,7 +14,7 @@ public class IngredientMenu {
     private int idIngredientMenu ;
     private int idMenu ;
     private int idIngredient ;
-    private int quantiteNecessaire ;
+    private double quantiteNecessaire ;
     private String type ;
     private  int idUnite ;
     private LocalDateTime dateMovement ;

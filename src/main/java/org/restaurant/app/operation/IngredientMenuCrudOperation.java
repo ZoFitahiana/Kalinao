@@ -2,13 +2,15 @@ package org.restaurant.app.operation;
 
 import org.restaurant.app.entity.ConnectionDb;
 import org.restaurant.app.entity.IngredientMenu;
+import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+@Repository
 
-public class IngredientMenuOperation implements CrudOperation<IngredientMenu> {
+public class IngredientMenuCrudOperation implements CrudOperation<IngredientMenu> {
     @Override
     public IngredientMenu findById() {
 
@@ -31,7 +33,7 @@ public class IngredientMenuOperation implements CrudOperation<IngredientMenu> {
          statement.setInt(1,toSave.getIdIngredientMenu());
          statement.setInt(2,toSave.getIdMenu());
          statement.setInt(3,toSave.getIdIngredient());
-         statement.setInt(5,toSave.getQuantiteNecessaire());
+         statement.setDouble(5,toSave.getQuantiteNecessaire());
          statement.setInt(6,toSave.getIdUnite());
          statement.setObject(7,toSave.getDateMovement());
          statement.executeUpdate();

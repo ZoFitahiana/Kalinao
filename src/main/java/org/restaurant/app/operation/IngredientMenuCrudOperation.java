@@ -8,11 +8,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+
+import static org.restaurant.app.utils.Stock.updateStock;
+
 @Repository
 
 public class IngredientMenuCrudOperation implements CrudOperation<IngredientMenu> {
     @Override
-    public IngredientMenu findById() {
+    public IngredientMenu findById(int id ) {
 
         return null;
     }
@@ -37,6 +40,7 @@ public class IngredientMenuCrudOperation implements CrudOperation<IngredientMenu
          statement.setInt(6,toSave.getIdUnite());
          statement.setObject(7,toSave.getDateMovement());
          statement.executeUpdate();
+         updateStock(toSave);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

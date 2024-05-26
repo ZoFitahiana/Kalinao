@@ -5,13 +5,35 @@ import org.restaurant.app.entity.Ingredient;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
 public class IngredientCrudOperation implements CrudOperation<Ingredient>{
     @Override
-    public Ingredient findById() {
-        return null;
+    public Ingredient findById(int id) {
+        Connection connection = null ;
+        PreparedStatement statement = null ;
+        ResultSet resultSet = null ;
+        Ingredient ingredient = null ;
+        try{
+         String sql = "SELECT * FROM ingredient WHERE id_ingredient = ?";
+         connection = ConnectionDb.createConnection();
+         statement = connection.prepareStatement(sql);
+         statement.setInt(1,id);
+         resultSet = statement.executeQuery();
+         while (resultSet.next()){
+            int id_ingredient = resultSet.getInt("id_ingredient");
+            String nom = resultSet.getString("nom");
+            double prix = resultSet.getDouble("prix");
+            int id_unite = resultSet.getInt("id_unite");
+            double stock = resultSet.getDouble("stock");
+            ingredient = new Ingredient(id_ingredient,nom,prix,id_unite,stock);
+         }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return ingredient;
     }
 
     @Override

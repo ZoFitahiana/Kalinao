@@ -2,6 +2,8 @@ package org.restaurant.app.entity;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -13,6 +15,8 @@ public class IngredientMenu {
     private int idMenu ;
     private int idIngredient ;
     private int quantiteNecessaire ;
+    private String type ;
     private  int idUnite ;
+    private LocalDateTime date ;
 }
 

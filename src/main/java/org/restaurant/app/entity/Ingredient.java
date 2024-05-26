@@ -13,4 +13,5 @@ public class Ingredient {
     private String nom ;
     private double prix ;
     private int uniteId ;
+    private int stock ;
 }

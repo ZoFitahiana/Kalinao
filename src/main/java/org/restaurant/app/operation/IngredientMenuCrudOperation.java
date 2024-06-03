@@ -1,10 +1,7 @@
 package org.restaurant.app.operation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.restaurant.app.entity.ConnectionDb;
-import org.restaurant.app.entity.Ingredient;
-import org.restaurant.app.entity.IngredientMenu;
-import org.restaurant.app.entity.IngredientUsage;
+import org.restaurant.app.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -107,26 +104,27 @@ public class IngredientMenuCrudOperation implements CrudOperation<IngredientMenu
     public void delete(int id) {
 
     }
-
-    public static double stockIngredient(IngredientMenu menu){
+    public static double calculateStock(IngredientMenu menu) {
         double stock = 0.0;
-        if (menu.getType().equals("entrer")){
+        if (menu.getType().equals("entrer")) {
             stock += menu.getQuantiteNecessaire();
         }
-        if (menu.getType().equals("sortie")){
+        if (menu.getType().equals("sortie")) {
             stock -= menu.getQuantiteNecessaire();
         }
         return stock;
     }
-    public Ingredient updateStock(IngredientMenu menu){
-        double stock = stockIngredient(menu);
+
+    public Ingredient updateStock(IngredientMenu menu) {
+        double stock = calculateStock(menu);
         Ingredient ingredient = ingredientCrudOperation.findById(menu.getIdIngredient());
-        Ingredient ingredientUpdateStock = new Ingredient(ingredient.getIdIngredient(), ingredient.getNom(),ingredient.getPrix(),ingredient.getIdUnite(),stock);
-        ingredientCrudOperation.Update(ingredientUpdateStock);
-        return  ingredientUpdateStock;
+        double newStock = ingredient.getStock() + stock;
+        ingredient.setStock(newStock);
+        return ingredientCrudOperation.Update(ingredient);
     }
 
-    public void consultationMouvementStock(LocalDateTime start, LocalDateTime end) {
+    public List<StockMovement> getStockMovements(LocalDateTime start, LocalDateTime end) {
+        List<StockMovement> movements = new ArrayList<>();
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
@@ -146,15 +144,11 @@ public class IngredientMenuCrudOperation implements CrudOperation<IngredientMenu
                 LocalDateTime dateMovement = resultSet.getTimestamp("date_movement").toLocalDateTime();
                 String ingredientName = resultSet.getString("nom");
                 String type = resultSet.getString("type");
-                double quantiteNecessaire = resultSet.getDouble("quantite_necessaire");
-                String uniteName = resultSet.getString("name");
+                double quantity = resultSet.getDouble("quantite_necessaire");
+                String unitName = resultSet.getString("name");
 
-                System.out.println("Date de mouvement : " + dateMovement);
-                System.out.println("Ingrédient : " + ingredientName);
-                System.out.println("Type : " + type);
-                System.out.println("Quantité nécessaire : " + quantiteNecessaire);
-                System.out.println("Unité : " + uniteName);
-                System.out.println();
+                StockMovement movement = new StockMovement(dateMovement, ingredientName, type, quantity, unitName);
+                movements.add(movement);
             }
         } catch (SQLException e) {
             throw new RuntimeException("Erreur lors de la consultation des mouvements de stock.", e);
@@ -167,9 +161,10 @@ public class IngredientMenuCrudOperation implements CrudOperation<IngredientMenu
                 throw new RuntimeException("Erreur lors de la fermeture des ressources de base de données.", e);
             }
         }
+        return movements;
     }
 
-    public List<IngredientUsage>  getIngredientUsage(LocalDateTime start, LocalDateTime end) {
+    public List<IngredientUsage> getIngredientUsage(LocalDateTime start, LocalDateTime end) {
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
@@ -189,7 +184,8 @@ public class IngredientMenuCrudOperation implements CrudOperation<IngredientMenu
                     "INNER JOIN Unite u ON u.id_unite = im.id_unite " +
                     "WHERE im.date_movement BETWEEN ? AND ? " +
                     "GROUP BY i.id_ingredient, i.nom, m.name, im.quantite_necessaire, u.name " +
-                    "ORDER BY im.quantite_necessaire DESC";
+                    "ORDER BY im.quantite_necessaire DESC " +
+                    "LIMIT 3";
 
             connection = ConnectionDb.createConnection();
             statement = connection.prepareStatement(sql);
@@ -209,14 +205,14 @@ public class IngredientMenuCrudOperation implements CrudOperation<IngredientMenu
             }
             return usageList;
         } catch (Exception e) {
-            throw new RuntimeException("Error for script sql");
+            throw new RuntimeException("Error executing SQL query", e);
         } finally {
             try {
                 if (resultSet != null) resultSet.close();
                 if (statement != null) statement.close();
                 if (connection != null) connection.close();
             } catch (SQLException e) {
-                throw new RuntimeException("Error for close resources", e);
+                throw new RuntimeException("Error closing resources", e);
             }
         }
     }

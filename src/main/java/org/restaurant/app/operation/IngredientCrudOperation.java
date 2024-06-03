@@ -4,10 +4,8 @@ import org.restaurant.app.entity.ConnectionDb;
 import org.restaurant.app.entity.Ingredient;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -41,13 +39,83 @@ public class IngredientCrudOperation implements CrudOperation<Ingredient>{
 
     @Override
     public List<Ingredient> findAll() {
-        return null;
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        List<Ingredient> ingredients = new ArrayList<>();
+
+        try {
+            String sql = "SELECT * FROM ingredient";
+            connection = ConnectionDb.createConnection();
+            statement = connection.prepareStatement(sql);
+            resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id_ingredient");
+                String nom = resultSet.getString("nom");
+                double prix = resultSet.getDouble("prix");
+                int idUnite = resultSet.getInt("id_unite");
+                double stock = resultSet.getDouble("stock");
+
+                Ingredient ingredient = new Ingredient(id, nom, prix, idUnite, stock);
+                ingredients.add(ingredient);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (resultSet != null) resultSet.close();
+                if (statement != null) statement.close();
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return ingredients;
     }
+
 
     @Override
     public Ingredient save(Ingredient toSave) {
-        return null;
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try {
+            String sql = "INSERT INTO ingredient (nom, prix, id_unite, stock) VALUES (?, ?, ?, ?)";
+            connection = ConnectionDb.createConnection();
+            statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            statement.setString(1, toSave.getNom());
+            statement.setDouble(2, toSave.getPrix());
+            statement.setInt(3, toSave.getIdUnite());
+            statement.setDouble(4, toSave.getStock());
+
+            int affectedRows = statement.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Insertion de l'ingrédient a échoué, aucune ligne affectée.");
+            }
+
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    toSave.setIdIngredient(generatedKeys.getInt(1));
+                } else {
+                    throw new SQLException("La récupération de l'ID après l'insertion a échoué.");
+                }
+            }
+
+            return toSave;
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la sauvegarde de l'ingrédient.", e);
+        } finally {
+            try {
+                if (resultSet != null) resultSet.close();
+                if (statement != null) statement.close();
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                throw new RuntimeException("Erreur lors de la fermeture des ressources de base de données.", e);
+            }
+        }
     }
+
 
     @Override
     public Ingredient Update(Ingredient toUpdate) {
@@ -80,6 +148,24 @@ public class IngredientCrudOperation implements CrudOperation<Ingredient>{
 
     @Override
     public void delete(int id) {
-
+        Connection connection = null ;
+        PreparedStatement statement = null ;
+        try {
+            String sql = "DELETE FROM ingredient WHERE id_ingredient = ?";
+            connection = ConnectionDb.createConnection();
+            statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (statement != null) statement.close();
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
+
 }

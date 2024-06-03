@@ -10,9 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class IngredientMenuController {
     @Autowired
-    private static   IngredientMenuService menu ;
+    private IngredientMenuService menu;
+
     @PostMapping("/ingredient-menu")
-    public  static IngredientMenu Approvisionnement(@RequestBody IngredientMenu ingredientMenu){
+    public IngredientMenu Approvisionnement(@RequestBody IngredientMenu ingredientMenu) {
         return menu.register(ingredientMenu);
     }
 }

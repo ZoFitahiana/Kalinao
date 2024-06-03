@@ -13,8 +13,7 @@ public class ConsultationStockController {
     @Autowired
     private ConsultationMovementService consultationMovementService;
     @GetMapping("/consultation-stock")
-    public void ConsultationMovementStock(@RequestParam LocalDateTime startDate,
-                                                         @RequestParam LocalDateTime endDate) {
+    public void ConsultationMovementStock(@RequestParam LocalDateTime startDate,@RequestParam LocalDateTime endDate) {
          consultationMovementService.ConsultationMovementOfStock(startDate, endDate);
     }
 

@@ -11,4 +11,5 @@ import lombok.*;
 public class Restaurant {
     private int idRestaurant ;
     private String location ;
+    private  int idIngredientMenu;
 }

@@ -18,11 +18,6 @@ CREATE TABLE Menu (
     prix_vente NUMERIC(10, 2) NOT NULL
 );
 
-CREATE TABLE Restaurant (
-    id_restaurant SERIAL PRIMARY KEY,
-    location VARCHAR(255) NOT NULL
-);
-
 CREATE TABLE IngredientMenu (
     id_ingredient_menu SERIAL PRIMARY KEY,
     id_menu INT NOT NULL,
@@ -35,6 +30,15 @@ CREATE TABLE IngredientMenu (
     FOREIGN KEY (id_ingredient) REFERENCES Ingredient(id_ingredient),
     FOREIGN KEY (id_unite) REFERENCES Unite(id_unite)
 );
+
+CREATE TABLE Restaurant (
+    id_restaurant SERIAL PRIMARY KEY,
+    location VARCHAR(255) NOT NULL,
+    id_ingredient_menu INT,
+    FOREIGN KEY (id_ingredient_menu) REFERENCES IngredientMenu(id_ingredient_menu)
+);
+
+
 
 -- Insérer des enregistrements dans la table Unite
 INSERT INTO Unite (name) VALUES ('Kilogramme');
@@ -51,12 +55,12 @@ INSERT INTO Menu (name, prix_vente) VALUES ('Crêpe', 5.00);
 INSERT INTO Menu (name, prix_vente) VALUES ('Gaufre', 4.00);
 INSERT INTO Menu (name, prix_vente) VALUES ('Croissant', 2.50);
 
--- Insérer des enregistrements dans la table Restaurant
-INSERT INTO Restaurant (location) VALUES ('Paris');
-INSERT INTO Restaurant (location) VALUES ('Lyon');
-INSERT INTO Restaurant (location) VALUES ('Marseille');
-
 -- Insérer des enregistrements dans la table IngredientMenu
 INSERT INTO IngredientMenu (id_menu, id_ingredient, quantite_necessaire, type, id_unite, date_movement) VALUES (1, 1, 0.25, 'Ingrédient', 1, '2024-06-01 12:00:00');
 INSERT INTO IngredientMenu (id_menu, id_ingredient, quantite_necessaire, type, id_unite, date_movement) VALUES (1, 2, 0.50, 'Ingrédient', 2, '2024-06-01 12:00:00');
 INSERT INTO IngredientMenu (id_menu, id_ingredient, quantite_necessaire, type, id_unite, date_movement) VALUES (1, 3, 2.00, 'Ingrédient', 3, '2024-06-01 12:00:00');
+
+-- Insérer des enregistrements dans la table Restaurant
+INSERT INTO Restaurant (location, id_ingredient_menu) VALUES ('Paris', 1);
+INSERT INTO Restaurant (location, id_ingredient_menu) VALUES ('Lyon', 2);
+INSERT INTO Restaurant (location, id_ingredient_menu) VALUES ('Marseille', 3);
